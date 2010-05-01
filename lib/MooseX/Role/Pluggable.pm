@@ -1,45 +1,78 @@
 package MooseX::Role::Pluggable;
-use Moose::Role;
 use Class::MOP;
+use Moose::Role;
+use Moose::Util::TypeConstraints;
+use 5.010;
 
-has plugin_list => (
-  isa => 'ArrayRef[MooseX::Role::Pluggable::Plugin]' ,
-  is  => 'ro' ,
-  init_arg => undef ,
-  default => sub { [] } ,
-);
+our $VERSION = 0.01;
 
 has plugins => (
   isa => 'ArrayRef[Str]',
   is  => 'rw' ,
-  default => sub { [] } ,
 );
 
-sub new_with_plugins {
-  my( $class , $args ) = @_;
+subtype 'MooseXRolePluggablePlugin'
+  => as 'Object'
+  => where { $_->does( 'MooseX::Role::Pluggable::Plugin' ) }
+  => message { 'Plugin did not consume the required role!' };
 
-  my $self = $class->new( $args );
-  $self->load_plugins;
+has plugin_hash => (
+  isa        => 'Maybe[HashRef[MooseXRolePluggablePlugin]]' ,
+  is         => 'ro' ,
+  init_arg   => undef ,
+  lazy_build => 1 ,
+);
+
+sub _build_plugin_hash {
+  my $self = shift;
+
+  return $self->plugin_list ? { map { $_->name => $_ } @{ $self->plugin_list } } : undef;
 }
 
-sub load_plugins {
+has plugin_list => (
+  isa        => 'Maybe[ArrayRef[MooseXRolePluggablePlugin]]' ,
+  is         => 'ro' ,
+  init_arg   => undef ,
+  lazy_build => 1 ,
+);
+
+sub _build_plugin_list {
   my( $self ) = shift;
 
-  ### FIXME plugins should handle the standard "append a prefix unless name
-  ### starts with '+'" behavior
-  foreach my $plugin_class ( @{ $self->plugins }) {
-    Class::MOP::load_class( $plugin_class );
+  return undef unless $self->plugins;
 
-    my $plugin = $plugin_class->new({
-      name   => $plugin_class ,
+  my $plugin_list = [];
+
+  my $plugin_name_map = $self->_map_plugins_to_libs();
+
+  foreach my $plugin_name ( keys %$plugin_name_map ) {
+    my $plugin_lib = $plugin_name_map->{$plugin_name};
+
+    ### FIXME should have some Try::Tiny here, with a parameter to control
+    ### what happens when a class doesn't load -- ignore, warn, die
+    Class::MOP::load_class( $plugin_lib );
+
+    my $plugin = $plugin_lib->new({
+      name   => $plugin_name ,
       parent => $self ,
     });
 
-    push @{ $self->{plugin_list} } , $plugin;
+    push @{ $plugin_list } , $plugin;
   }
 
-  return $self;
+  return $plugin_list;
 };
+
+sub _map_plugins_to_libs {
+  my( $self ) = @_;
+  my $class = ref $self;
+
+  my %map;
+  foreach ( @{ $self->plugins } ) {
+    $map{$_} = ( s/^\+// ) ? $_ : "${class}::Plugin::$_";
+  }
+  return \%map;
+}
 
 no Moose::Role;
 1;
