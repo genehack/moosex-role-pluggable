@@ -63,6 +63,18 @@ sub _build_plugin_list {
   return $plugin_list;
 };
 
+sub plugin_run_method {
+  my( $self , $method ) = @_;
+
+  my $return = [];
+  foreach my $plugin ( @{ $self->plugin_list }) {
+    if ( $plugin->can( $method ) ) {
+      push @$return , $plugin->$method();
+    }
+  }
+  return $return;
+}
+
 sub _map_plugins_to_libs {
   my( $self ) = @_;
   my $class = ref $self;

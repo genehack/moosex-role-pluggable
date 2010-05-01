@@ -30,4 +30,10 @@ ok( ! $plugins->{'MyApp::OtherPlugin::Bar'}->can('common') , 'Bar does not do co
 ok( $plugins->{Baz}->can('common') , 'Baz does common' );
 ok( $plugins->{Foo}->can('common') , 'Foo does common' );
 
+is( $app->plugin_hash->{Foo}->foo() , 'Foo' , 'Foo::foo says Foo' );
+
+is_deeply( $app->plugin_run_method( 'common' ) , [ qw/ Common Common /] ,
+    'expected result from plugin_run_method' );
+
+
 done_testing;
