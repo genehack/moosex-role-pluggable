@@ -1,5 +1,6 @@
 package MooseX::Role::Pluggable::Plugin;
 use Moose::Role;
+use Moose::Util::TypeConstraints;
 
 has name => (
   isa => 'Str' ,
@@ -7,13 +8,17 @@ has name => (
   required => 1 ,
 );
 
-### FIXME add in constraints here to make sure
-### $parent->does( 'MooseX::Role::Pluggable' )
+subtype 'MooseXRolePluggable'
+  => as 'Object'
+  => where { $_->does( 'MooseX::Role::Pluggable' ) }
+  => message { 'Parent does not consume MooseX::Role::Pluggable!' };
+
 has parent => (
-  isa => 'Object' ,
-  is  => 'ro' ,
+  isa      => 'MooseXRolePluggable' ,
+  is       => 'ro' ,
   required => 1 ,
 );
 
 no Moose::Role;
 1;
+
