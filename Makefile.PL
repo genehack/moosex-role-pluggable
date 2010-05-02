@@ -9,6 +9,7 @@ requires 'Class::MOP';
 requires 'Moose';
 requires 'Moose::Role';
 requires 'Moose::Util::TypeConstraints';
+requires 'namespace::autoclean';
 
 test_requires 'Test::More';
 
