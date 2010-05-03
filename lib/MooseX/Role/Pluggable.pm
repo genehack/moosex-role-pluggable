@@ -4,7 +4,7 @@ use Moose::Role;
 use Moose::Util::TypeConstraints;
 use 5.010;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 has plugins => (
   isa => 'ArrayRef[Str]',
