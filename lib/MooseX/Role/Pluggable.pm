@@ -150,7 +150,8 @@ Returns a hashref with a mapping of 'plugin_name' to the actual plugin object.
 
 =head2 plugin_list
 
-Returns an arrayref of loaded plugin objects.
+Returns an arrayref of loaded plugin objects. The array will have the same order
+as the plugins array ref passed in during object creation.
 
 =head1 AUTHOR
 
