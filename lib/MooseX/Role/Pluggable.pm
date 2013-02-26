@@ -2,6 +2,7 @@ package MooseX::Role::Pluggable;
 use Class::MOP;
 use Moose::Role;
 use Moose::Util::TypeConstraints;
+use Tie::IxHash;
 use 5.010;
 
 our $VERSION = 0.02;
@@ -79,7 +80,7 @@ sub _map_plugins_to_libs {
   my( $self ) = @_;
   my $class = ref $self;
 
-  my %map;
+  tie my %map, "Tie::IxHash";
   foreach ( @{ $self->plugins } ) {
     $map{$_} = ( s/^\+// ) ? $_ : "${class}::Plugin::$_";
   }
@@ -149,7 +150,8 @@ Returns a hashref with a mapping of 'plugin_name' to the actual plugin object.
 
 =head2 plugin_list
 
-Returns an arrayref of loaded plugin objects.
+Returns an arrayref of loaded plugin objects. The arrayref will have the
+same order as the plugins array ref passed in during object creation.
 
 =head1 AUTHOR
 
