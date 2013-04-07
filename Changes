@@ -1,0 +1,11 @@
+Revision history for {{$dist->name}}
+
+{{$NEXT}}
+
+        Make plugin_list ordered (Jody Clements)
+        Convert to Dzil and generally clean up (John SJ Anderson)
+
+0.2
+0.1
+
+        Undocumented. Bad maintainer, no cookie. 
