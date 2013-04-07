@@ -1,11 +1,10 @@
 package MooseX::Role::Pluggable;
+# ABSTRACT: add plugins to your Moose classes
 use Class::MOP;
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 use Tie::IxHash;
 use 5.010;
-
-our $VERSION = 0.02;
 
 has plugins => (
   isa => 'ArrayRef[Str]',
