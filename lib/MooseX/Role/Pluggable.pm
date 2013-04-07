@@ -152,6 +152,12 @@ Returns a hashref with a mapping of 'plugin_name' to the actual plugin object.
 Returns an arrayref of loaded plugin objects. The arrayref will have the
 same order as the plugins array ref passed in during object creation.
 
+=head2 plugin_run_method( $method_name )
+
+Looks for a method named $method_name in each plugin in the plugin list. If a
+method of given name is found, it will be run. (N.b., this is essentially the
+C<foreach> loop from the L</SYNOPSIS>.)
+
 =head1 AUTHOR
 
 John SJ Anderson, C<genehack@genehack.org>
