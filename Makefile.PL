@@ -10,6 +10,7 @@ requires 'Moose';
 requires 'Moose::Role';
 requires 'Moose::Util::TypeConstraints';
 requires 'namespace::autoclean';
+requires 'Tie::IxHash';
 
 test_requires 'Test::More';
 

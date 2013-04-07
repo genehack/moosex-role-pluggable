@@ -53,7 +53,8 @@ METHODS
 
   plugin_list
 
-    Returns an arrayref of loaded plugin objects.
+    Returns an arrayref of loaded plugin objects. The arrayref will have the
+    same order as the plugins array ref passed in during object creation.
 
 AUTHOR
     John SJ Anderson, `genehack@genehack.org'

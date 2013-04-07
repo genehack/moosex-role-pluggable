@@ -35,5 +35,10 @@ is( $app->plugin_hash->{Foo}->foo() , 'Foo' , 'Foo::foo says Foo' );
 is_deeply( $app->plugin_run_method( 'common' ) , [ qw/ Common Common /] ,
     'expected result from plugin_run_method' );
 
+my $plugin_list = $app->plugin_list;
+
+isa_ok( $plugin_list->[0], "MyApp::Plugin::Foo", 'Expected Foo first');
+isa_ok( $plugin_list->[1], "MyApp::Plugin::Baz", 'Expected Baz second');
+isa_ok( $plugin_list->[2], "MyApp::OtherPlugin::Bar", 'Expected Bar last');
 
 done_testing;
