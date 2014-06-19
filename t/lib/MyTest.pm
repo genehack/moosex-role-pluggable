@@ -25,6 +25,7 @@
   package MyApp::Plugin::Foo;
   use Moose;
   extends 'MyApp::Plugin';
+  has 'attr1' => ( is => 'rw' );
   sub foo { return "Foo" }
 }
 
