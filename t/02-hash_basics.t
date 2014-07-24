@@ -11,9 +11,9 @@ use Test::More;
 
 my $app = MyApp->new({
   plugins => [
-    'Foo' => { attr1 => 'test' },
-    'Baz' => {},
-    '+MyApp::OtherPlugin::Bar' => {},
+    {'Foo' => { attr1 => 'test' } },
+    {'Baz' => {}} ,
+    '+MyApp::OtherPlugin::Bar',
   ] ,
 });
 
@@ -37,8 +37,8 @@ is_deeply( $app->plugin_run_method( 'common' ) , [ qw/ Common Common /] ,
 
 my $plugin_list = $app->plugin_list;
 
-isa_ok( $plugin_list->[0], "MyApp::Plugin::Foo", 'Expected Foo first');
-isa_ok( $plugin_list->[1], "MyApp::Plugin::Baz", 'Expected Baz second');
-isa_ok( $plugin_list->[2], "MyApp::OtherPlugin::Bar", 'Expected Bar last');
+isa_ok( $plugin_list->[0], "MyApp::Plugin::Foo");
+isa_ok( $plugin_list->[1], "MyApp::Plugin::Baz");
+isa_ok( $plugin_list->[2], "MyApp::OtherPlugin::Bar");
 
 done_testing;

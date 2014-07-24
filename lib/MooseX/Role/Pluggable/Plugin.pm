@@ -3,7 +3,7 @@ package MooseX::Role::Pluggable::Plugin;
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 
-has name => (
+has _mxrp_name => (
   isa => 'Str' ,
   is  => 'ro' ,
   required => 1 ,
@@ -14,7 +14,7 @@ subtype 'MooseXRolePluggable'
   => where { $_->does( 'MooseX::Role::Pluggable' ) }
   => message { 'Parent does not consume MooseX::Role::Pluggable!' };
 
-has parent => (
+has _mxrp_parent => (
   isa      => 'MooseXRolePluggable' ,
   is       => 'ro' ,
   required => 1 ,

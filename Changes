@@ -4,6 +4,8 @@ Revision history for {{$dist->name}}
 
         Added support for build args (Sean Maguire)
         Switch to Class::Load::load_class
+        Refactor build args support
+        Change 'name' and 'parent' params to '_mxrp_name' & '_mxrp_parent'
 
 0.04      2013-05-07 15:07:22 America/Los_Angeles
 
@@ -17,4 +19,4 @@ Revision history for {{$dist->name}}
 0.2
 0.1
 
-        Undocumented. Bad maintainer, no cookie. 
+        Undocumented. Bad maintainer, no cookie.

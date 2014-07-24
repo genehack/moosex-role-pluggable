@@ -7,7 +7,7 @@ use Tie::IxHash;
 use 5.010;
 
 has plugins => (
-  isa => 'ArrayRef[Str] | HashRef',
+  isa => 'ArrayRef[Str|HashRef]' ,
   is  => 'rw' ,
 );
 
@@ -26,7 +26,9 @@ has plugin_hash => (
 sub _build_plugin_hash {
   my $self = shift;
 
-  return $self->plugin_list ? { map { $_->name => $_ } @{ $self->plugin_list } } : undef;
+  return $self->plugin_list
+    ? { map { $_->_mxrp_name => $_ } @{ $self->plugin_list } }
+    : undef;
 }
 
 has plugin_list => (
@@ -45,30 +47,42 @@ sub _build_plugin_list {
 
   my $plugin_name_map = $self->_map_plugins_to_libs();
 
-  foreach my $plugin_name ( keys %$plugin_name_map ) {
+  my @plugin_list = @{ $self->plugins };
+
+  foreach my $plugin ( @plugin_list ) {
+    my( $plugin_name , $plugin_args );
+
+    if ( ref $plugin eq 'HASH' ) { ( $plugin_name , $plugin_args ) = %$plugin }
+    else                         { $plugin_name = $plugin }
+
+    $plugin_name =~ s/^\+//;
+
     my $plugin_lib = $plugin_name_map->{$plugin_name};
 
     ### FIXME should have some Try::Tiny here, with a parameter to control
     ### what happens when a class doesn't load -- ignore, warn, die
-
-    my $plugin;
-    if ( ref $self->plugins eq 'ARRAY' ) {
-      $plugin = $plugin_lib->new({
-        name   => $plugin_name ,
-        parent => $self ,
-      });
-    } else {
-      my $args = $self->plugins->{$plugin_name} || {};
-      die "'name' is used internally and cannot be passed to constructor" if exists $args->{name};
-      die "'parent' is used internally and cannot be passed to constructor" if exists $args->{parent};
-      $args->{name} = $plugin_name;
-      $args->{parent} = $self;
-
-      $plugin = $plugin_lib->new($args);
     load_class( $plugin_lib );
+
+    my $args = {};
+    if ( $plugin_args ) {
+      $args = $plugin_args;
+      foreach ( qw/ _mxrp_name _mxrp_parent / ) {
+        die "'$_' is used internally and cannot be passed to constructor"
+          if exists $plugin_args->{$_};
+      }
+      $args->{_mxrp_name}   = $plugin_name;
+      $args->{_mxrp_parent} = $self;
+    }
+    else {
+      $args = {
+        _mxrp_name   => $plugin_name ,
+        _mxrp_parent => $self ,
+      };
     }
 
-    push @{ $plugin_list } , $plugin;
+    my $loaded_plugin = $plugin_lib->new($args);
+
+    push @{ $plugin_list } , $loaded_plugin;
   }
 
   return $plugin_list;
@@ -91,11 +105,17 @@ sub _map_plugins_to_libs {
   my $class = ref $self;
 
   tie my %map, "Tie::IxHash";
-  my @plugins = ref $self->plugins eq 'ARRAY' ? @{ $self->plugins } : keys %{ $self->plugins };
-    
+  my @plugins = @{ $self->plugins };
+
   foreach ( @plugins ) {
-    $map{$_} = ( s/^\+// ) ? $_ : "${class}::Plugin::$_";
+    my $name;
+    if    ( ref $_ eq 'HASH' ) { ($name) = keys %$_ }
+    elsif ( ref $_ )           { die "bad plugin list" }
+    else                       { $name = $_ }
+
+    $map{$name} = ( $name =~ s/^\+// ) ? $name : "${class}::Plugin::$name";
   }
+
   return \%map;
 }
 
@@ -119,18 +139,15 @@ MooseX::Role::Pluggable - add plugins to your Moose classes
       # other args here
     });
 
-    or
+    or, if you need to pass arguments to a plugin module, you can do that by
+    using a hashref in the plugin list:
 
     my $moose = MyMoose->new({
-      plugins  => {
-        'Antlers' => {
-          long => 1,
-        },
-        'Tail' => {
-          short => 1,
-        },
+      plugins  => [
+        { 'Antlers' => { long  => 1, } },
+        { 'Tail'    => { short => 1, } },
         '+After::Market::GroundEffectsPackage' => {},
-      }
+      ]
     });
 
     foreach my $plugin ( @{ $moose->plugin_list } ) {
