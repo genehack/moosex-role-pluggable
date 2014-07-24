@@ -7,7 +7,7 @@ use Tie::IxHash;
 use 5.010;
 
 has plugins => (
-  isa => 'ArrayRef[Str]',
+  isa => 'ArrayRef[Str] | HashRef',
   is  => 'rw' ,
 );
 
@@ -52,10 +52,21 @@ sub _build_plugin_list {
     ### what happens when a class doesn't load -- ignore, warn, die
     Class::MOP::load_class( $plugin_lib );
 
-    my $plugin = $plugin_lib->new({
-      name   => $plugin_name ,
-      parent => $self ,
-    });
+    my $plugin;
+    if ( ref $self->plugins eq 'ARRAY' ) {
+      $plugin = $plugin_lib->new({
+        name   => $plugin_name ,
+        parent => $self ,
+      });
+    } else {
+      my $args = $self->plugins->{$plugin_name} || {};
+      die "'name' is used internally and cannot be passed to constructor" if exists $args->{name};
+      die "'parent' is used internally and cannot be passed to constructor" if exists $args->{parent};
+      $args->{name} = $plugin_name;
+      $args->{parent} = $self;
+
+      $plugin = $plugin_lib->new($args);
+    }
 
     push @{ $plugin_list } , $plugin;
   }
@@ -80,7 +91,9 @@ sub _map_plugins_to_libs {
   my $class = ref $self;
 
   tie my %map, "Tie::IxHash";
-  foreach ( @{ $self->plugins } ) {
+  my @plugins = ref $self->plugins eq 'ARRAY' ? @{ $self->plugins } : keys %{ $self->plugins };
+    
+  foreach ( @plugins ) {
     $map{$_} = ( s/^\+// ) ? $_ : "${class}::Plugin::$_";
   }
   return \%map;
@@ -104,6 +117,20 @@ MooseX::Role::Pluggable - add plugins to your Moose classes
     my $moose = MyMoose->new({
       plugins => [ 'Antlers' , 'Tail' , '+After::Market::GroundEffectsPackage' ] ,
       # other args here
+    });
+
+    or
+
+    my $moose = MyMoose->new({
+      plugins  => {
+        'Antlers' => {
+          long => 1,
+        },
+        'Tail' => {
+          short => 1,
+        },
+        '+After::Market::GroundEffectsPackage' => {},
+      }
     });
 
     foreach my $plugin ( @{ $moose->plugin_list } ) {
