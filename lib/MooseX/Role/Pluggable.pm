@@ -1,6 +1,6 @@
 package MooseX::Role::Pluggable;
 # ABSTRACT: add plugins to your Moose classes
-use Class::MOP;
+use Class::Load 'load_class';
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 use Tie::IxHash;
@@ -50,7 +50,6 @@ sub _build_plugin_list {
 
     ### FIXME should have some Try::Tiny here, with a parameter to control
     ### what happens when a class doesn't load -- ignore, warn, die
-    Class::MOP::load_class( $plugin_lib );
 
     my $plugin;
     if ( ref $self->plugins eq 'ARRAY' ) {
@@ -66,6 +65,7 @@ sub _build_plugin_list {
       $args->{parent} = $self;
 
       $plugin = $plugin_lib->new($args);
+    load_class( $plugin_lib );
     }
 
     push @{ $plugin_list } , $plugin;

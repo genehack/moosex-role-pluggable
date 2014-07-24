@@ -3,6 +3,7 @@ Revision history for {{$dist->name}}
 {{$NEXT}}
 
         Added support for build args (Sean Maguire)
+        Switch to Class::Load::load_class
 
 0.04      2013-05-07 15:07:22 America/Los_Angeles
 
