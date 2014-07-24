@@ -64,7 +64,7 @@ L<MooseX::Role::Pluggable>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2010, John SJ Anderson
+Copyright 2014, John SJ Anderson
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

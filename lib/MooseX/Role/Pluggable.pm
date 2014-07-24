@@ -189,6 +189,10 @@ C<foreach> loop from the L</SYNOPSIS>.)
 
 John SJ Anderson, C<genehack@genehack.org>
 
+=head1 CONTRIBUTORS
+
+Sean Maguire C<smaguire@talktalkplc.com>
+
 =head1 SEE ALSO
 
 L<MooseX::Role::Pluggable::Plugin>, L<MooseX::Object::Pluggable>,
@@ -196,7 +200,7 @@ L<Object::Pluggable>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2010, John SJ Anderson
+Copyright 2014, John SJ Anderson
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
