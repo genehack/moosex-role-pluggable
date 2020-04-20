@@ -1,4 +1,5 @@
 package MooseX::Role::Pluggable::Plugin;
+
 # ABSTRACT: Role for plugins to consume
 use Moose::Role;
 use Moose::Util::TypeConstraints;

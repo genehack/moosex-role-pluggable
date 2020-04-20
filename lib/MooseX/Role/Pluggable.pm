@@ -1,4 +1,5 @@
 package MooseX::Role::Pluggable;
+
 # ABSTRACT: add plugins to your Moose classes
 use Class::Load 'load_class';
 use Moose::Role;
